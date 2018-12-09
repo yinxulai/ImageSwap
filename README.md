@@ -5,12 +5,12 @@
 ```
 GLOBAL OPTIONS:
    --decode            从图片解码为JSON
-   --encode            将JSON还原为图片
+   --encode            将JSON编码为图片
    --output value      输出文件名称 (default: "outfile")
    --input value       输入文件路径
-   --javascript value  处理中间脚本
-   --help, -h          show help
-   --version, -v       print the version
+   --javascript value  处理中间脚本路径
+   --help, -h          查看帮助
+   --version, -v       查看版本信息
 ```
 
 ### JSON格式示例
@@ -42,4 +42,3 @@ function main(img) {
 }
 ```
 
-### 

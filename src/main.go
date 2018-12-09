@@ -56,7 +56,7 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:        "encode",
-			Usage:       "将JSON还原为图片",
+			Usage:       "将JSON编码为图片",
 			Destination: &EnCode,
 		},
 		cli.StringFlag{
@@ -73,7 +73,7 @@ func main() {
 
 		cli.StringFlag{
 			Name:        "javascript",
-			Usage:       "处理中间脚本",
+			Usage:       "处理中间脚本路径",
 			Destination: &JavaScript,
 		},
 	}
@@ -81,15 +81,15 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 
 		if DeCode && EnCode {
-			return errors.New("-d -e 参数同时存在")
+			return errors.New("-decode -encode 参数同时存在")
 		}
 
 		if !DeCode && !EnCode {
-			return errors.New("-d -e 至少输入一项")
+			return errors.New("-decode -encode 至少输入一项")
 		}
 
 		if Ipt == "" {
-			return errors.New("-i 参数错误 ")
+			return errors.New("-input 参数错误")
 		}
 
 		if DeCode {
@@ -130,7 +130,6 @@ func main() {
 			if err != nil {
 				return err
 			}
-			return nil
 		}
 
 		return nil
@@ -143,6 +142,7 @@ func main() {
 
 // DeCodeRGBA 读取RGBA
 func DeCodeRGBA(img image.Image) (imageMap ImageRGBAMap) {
+	fmt.Println("读取图片RGBA中....")
 	imageMap = ImageRGBAMap{}
 	rectangle := img.Bounds()
 	imageMap.Width = rectangle.Max.X
@@ -160,11 +160,13 @@ func DeCodeRGBA(img image.Image) (imageMap ImageRGBAMap) {
 			})
 		}
 	}
+	fmt.Println("读取图片RGBA完成")
 	return imageMap
 }
 
 // EnCodeRGBA 编码RGBA
 func EnCodeRGBA(imgMap ImageRGBAMap) (img image.Image, err error) {
+	fmt.Println("将JSON编码为图片中....")
 	imgRectangle := image.Rectangle{
 		Min: image.Point{
 			X: 0,
@@ -179,14 +181,17 @@ func EnCodeRGBA(imgMap ImageRGBAMap) (img image.Image, err error) {
 	for _, colorPoint := range imgMap.Data {
 		imgRGBA.Set(colorPoint.X, colorPoint.Y, color.RGBA{uint8(colorPoint.R), uint8(colorPoint.G), uint8(colorPoint.B), uint8(colorPoint.A)})
 	}
+	fmt.Println("将JSON编码为图片完成")
 	return imgRGBA.SubImage(imgRectangle), nil
 }
 
 // ReadJSONFile 读取
 func ReadJSONFile(path string) (imgMap ImageRGBAMap, err error) {
+	fmt.Println("读取JSON中....")
 	//打开文件
 	filePtr, err := os.Open(path)
 	if err != nil {
+		fmt.Println("打开文件失败....")
 		return imgMap, err
 	}
 	defer filePtr.Close()
@@ -197,16 +202,20 @@ func ReadJSONFile(path string) (imgMap ImageRGBAMap, err error) {
 	//把解码的结果存在xhz的地址中
 	err = decoder.Decode(&imgMap)
 	if err != nil {
+		fmt.Println("JSON解码错误....")
 		return imgMap, err
 	}
+	fmt.Println("读取JSON完成")
 	return imgMap, nil
 }
 
 // WriteJSONFile 写入读取
 func WriteJSONFile(imgMap ImageRGBAMap, name string) (err error) {
+	fmt.Println("写出JSON中....")
 	//创建文件（并打开）
 	filePtr, err := os.Create(name + ".json")
 	if err != nil {
+		fmt.Println("创建文件失败....")
 		return err
 	}
 	defer filePtr.Close()
@@ -217,33 +226,46 @@ func WriteJSONFile(imgMap ImageRGBAMap, name string) (err error) {
 	//将小黑子实例编码到文件中
 	err = encoder.Encode(imgMap)
 	if err != nil {
+		fmt.Println("JSON编码失败....")
 		return err
 	}
+	fmt.Println("写出JSON完成")
 	return err
 }
 
 // ReadImageFile 读取一个图片文件
 func ReadImageFile(path string) (img image.Image, err error) {
+	fmt.Println("读取图片中....")
 	fileByte, err := ioutil.ReadFile(path)
 	if err != nil {
+		fmt.Println("读取文件失败....")
 		return img, err
 	}
 	img, _, err = image.Decode(bytes.NewBuffer(fileByte))
 	if err != nil {
+		fmt.Println("图片解码失败....")
 		return img, err
 	}
+	fmt.Println("读取图片完成....")
 	return img, err
 }
 
 // WriteImageFile 写入一个图片文件
 func WriteImageFile(img image.Image, name string) (err error) {
+	fmt.Println("写出图片中....")
 	fullPath := name + ".png"
 	filePtr, err := os.Create(fullPath)
 	if err != nil {
+		fmt.Println("文件创建失败....")
 		return err
 	}
 	defer filePtr.Close()
 	err = png.Encode(filePtr, img)
+	if err != nil {
+		fmt.Println("图片编码失败....")
+		return err
+	}
+	fmt.Println("写出图片完成....")
 	return err
 }
 
@@ -252,6 +274,7 @@ func JavaScriptMiddleware(imageMap ImageRGBAMap, path string) (outImageMap Image
 	fmt.Println("读取JavaScript脚本....")
 	scriptByte, err := ioutil.ReadFile(path)
 	if err != nil {
+		fmt.Println("文件读取失败....")
 		return outImageMap, err
 	}
 
@@ -260,6 +283,7 @@ func JavaScriptMiddleware(imageMap ImageRGBAMap, path string) (outImageMap Image
 
 	imageMapJSON, err := json.Marshal(imageMap)
 	if err != nil {
+		fmt.Println("JSON解码失败....")
 		return outImageMap, err
 	}
 	jsvm.Set("mainCallBack", func(call otto.FunctionCall) otto.Value {
@@ -271,18 +295,21 @@ func JavaScriptMiddleware(imageMap ImageRGBAMap, path string) (outImageMap Image
 
 	value, err := jsvm.Run(fullScript)
 	if err != nil {
+		fmt.Println("JavaScript执行出错....")
 		return outImageMap, err
 	}
 
 	valueString, err := value.ToString()
 	if err != nil {
+		fmt.Println("获取JavaScript执行结果出错....")
 		return outImageMap, err
 	}
 
 	err = json.Unmarshal([]byte(valueString), &outImageMap)
 	if err != nil {
+		fmt.Println("解码JavaScript执行结果出错....")
 		return outImageMap, err
 	}
-	fmt.Println("执行JavaScript完毕....")
+	fmt.Println("执行JavaScript完毕")
 	return outImageMap, err
 }
