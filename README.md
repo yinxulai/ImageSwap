@@ -1,5 +1,5 @@
 # ImageSwap
-ImageSwap是一个便于简单图片研究的工具，它可以快速的把一张图片解析成为JSON文件或者将JSON还原成为一张图片。目前解析仅支持png、jpg、jpeg格式
+ImageSwap是一个便于简单图片研究的工具，它可以快速的把一张图片解析成为JSON文件或者将JSON还原成为一张图片。目前解析仅支持png、jpg、jpeg格式
 
 ### 基本命令使用
 ```
@@ -13,7 +13,7 @@ GLOBAL OPTIONS:
    --version, -v       查看版本信息
 ```
 
-### JSON格式示例
+### JSON格式示例
 ```
 {
     "Width": 50, //图片宽度
@@ -33,7 +33,7 @@ GLOBAL OPTIONS:
 ```
 
 ### JavaScript 脚本示例
-脚本必须有一个main函数作为入口,main函数会接受一个img值，该值为图片的JSON数据，此外，main函数可以将修改的JSON数据返回,最终会影响输出。
+脚本必须有一个main函数作为入口,main函数会接受一个img值，该值为图片的JSON数据，此外，main函数可以将修改的JSON数据返回,最终会影响输出。
 ```
 function main(img) { 
     img.Data.map(function (point) {
