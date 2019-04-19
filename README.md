@@ -1,8 +1,6 @@
 # ImageSwap
 ImageSwap是一个便于简单图片研究的工具，它可以快速的把一张图片解析成为JSON文件或者将JSON还原成为一张图片。目前解析仅支持png、jpg、jpeg格式
 
-![Star](https://github.com/yinxulai/ImageSwap/star)
-
 ### 示例
 ```
 //解码图片
