@@ -39,32 +39,37 @@ func main() {
 	var err error
 	var DeCode, EnCode bool
 	var Out, Ipt, JavaScript string
+
 	//实例化一个命令行程序
 	app := cli.NewApp()
 	//程序名称
-	app.Name = "PicTool"
+	app.Name = "ImageSwap"
 	//程序的用途描述
 	app.Usage = "解析JPEG或PNG图片为JSON/还原JSON到PNG"
 	//程序的版本号
 	app.Version = "0.0.1"
 	//设置可接受的参数
 	app.Flags = []cli.Flag{
+
 		cli.BoolFlag{
 			Name:        "decode",
 			Usage:       "从图片解码为JSON",
 			Destination: &DeCode,
 		},
+
 		cli.BoolFlag{
 			Name:        "encode",
 			Usage:       "将JSON编码为图片",
 			Destination: &EnCode,
 		},
+
 		cli.StringFlag{
 			Name:        "output",
 			Value:       "outfile",
 			Usage:       "输出文件名称",
 			Destination: &Out,
 		},
+
 		cli.StringFlag{
 			Name:        "input",
 			Usage:       "输入文件路径",
@@ -77,6 +82,7 @@ func main() {
 			Destination: &JavaScript,
 		},
 	}
+	
 	//该程序执行的代码
 	app.Action = func(c *cli.Context) error {
 
